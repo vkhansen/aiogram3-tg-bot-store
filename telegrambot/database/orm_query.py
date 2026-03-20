@@ -60,6 +60,7 @@ async def orm_add_product(session: AsyncSession, data: dict):
         price=float(data["price"]),
         image=data["image"],
         category_id=int(data["category"]),
+        options=data.get("options"),
     )
     session.add(obj)
     await session.commit()
@@ -78,17 +79,16 @@ async def orm_get_product(session: AsyncSession, product_id: int):
 
 
 async def orm_update_product(session: AsyncSession, product_id: int, data):
-    query = (
-        update(Product)
-        .where(Product.id == product_id)
-        .values(
-            name=data["name"],
-            description=data["description"],
-            price=float(data["price"]),
-            image=data["image"],
-            category_id=int(data["category"]),
-        )
+    values = dict(
+        name=data["name"],
+        description=data["description"],
+        price=float(data["price"]),
+        image=data["image"],
+        category_id=int(data["category"]),
     )
+    if "options" in data:
+        values["options"] = data["options"]
+    query = update(Product).where(Product.id == product_id).values(**values)
     await session.execute(query)
     await session.commit()
 
@@ -105,16 +105,35 @@ async def orm_add_user(
     first_name: str | None = None,
     last_name: str | None = None,
     phone: str | None = None,
+    lang: str = "en",
 ):
     query = select(User).where(User.user_id == user_id)
     result = await session.execute(query)
     if result.first() is None:
         session.add(
             User(
-                user_id=user_id, first_name=first_name, last_name=last_name, phone=phone
+                user_id=user_id, first_name=first_name, last_name=last_name,
+                phone=phone, lang=lang,
             )
         )
         await session.commit()
+
+
+async def orm_get_user(session: AsyncSession, user_id: int) -> User | None:
+    query = select(User).where(User.user_id == user_id)
+    result = await session.execute(query)
+    return result.scalar()
+
+
+async def orm_get_user_lang(session: AsyncSession, user_id: int) -> str:
+    user = await orm_get_user(session, user_id)
+    return user.lang if user else "en"
+
+
+async def orm_set_user_lang(session: AsyncSession, user_id: int, lang: str):
+    query = update(User).where(User.user_id == user_id).values(lang=lang)
+    await session.execute(query)
+    await session.commit()
 
 
 async def orm_add_to_cart(session: AsyncSession, user_id: int, product_id: int):

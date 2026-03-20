@@ -1,0 +1,195 @@
+{
+  "_comment": "Menu import file. Categories are auto-created if they don't exist. Image field is a local path or URL (leave empty to add via admin panel later). The options field is for future use (add-ons, sizes, spice levels, etc).",
+  "categories": [
+    "Food",
+    "Drinks",
+    "Desserts"
+  ],
+  "products": [
+    {
+      "name": "Kabuli Pulao",
+      "description": "Traditional Afghan rice with lamb, carrots, and raisins",
+      "price": 180,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "Regular", "price_modifier": 0},
+          {"name": "Large", "price_modifier": 40}
+        ],
+        "add_ons": [
+          {"name": "Extra lamb", "price": 60},
+          {"name": "Extra raisins", "price": 20}
+        ],
+        "spice_level": ["Mild", "Medium", "Spicy"]
+      }
+    },
+    {
+      "name": "Mantu",
+      "description": "Steamed dumplings filled with spiced beef and onions, topped with yogurt and lentil sauce",
+      "price": 140,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "6 pcs", "price_modifier": 0},
+          {"name": "12 pcs", "price_modifier": 80}
+        ],
+        "add_ons": [
+          {"name": "Extra yogurt sauce", "price": 15},
+          {"name": "Extra lentil sauce", "price": 15}
+        ]
+      }
+    },
+    {
+      "name": "Chapli Kebab",
+      "description": "Spiced flat beef kebab with tomatoes and green chillies",
+      "price": 160,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "1 pc", "price_modifier": 0},
+          {"name": "2 pcs", "price_modifier": 120}
+        ],
+        "add_ons": [
+          {"name": "Naan bread", "price": 25},
+          {"name": "Salad", "price": 30}
+        ],
+        "spice_level": ["Mild", "Medium", "Hot"]
+      }
+    },
+    {
+      "name": "Bolani",
+      "description": "Crispy flatbread stuffed with potatoes, leeks, or pumpkin",
+      "price": 80,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "filling": ["Potato", "Leek", "Pumpkin"],
+        "add_ons": [
+          {"name": "Yogurt dip", "price": 15},
+          {"name": "Chutney", "price": 15}
+        ]
+      }
+    },
+    {
+      "name": "Afghan Naan",
+      "description": "Freshly baked traditional flatbread from tandoor",
+      "price": 30,
+      "category": "Food",
+      "image": "",
+      "options": null
+    },
+    {
+      "name": "Korma",
+      "description": "Tender chicken braised in onion-tomato sauce with Afghan spices",
+      "price": 170,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "protein": ["Chicken", "Lamb +30฿"],
+        "add_ons": [
+          {"name": "Rice", "price": 30},
+          {"name": "Naan", "price": 25}
+        ],
+        "spice_level": ["Mild", "Medium", "Spicy"]
+      }
+    },
+    {
+      "name": "Ashak",
+      "description": "Leek-filled dumplings with yogurt and meat sauce",
+      "price": 130,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "add_ons": [
+          {"name": "Extra yogurt", "price": 15},
+          {"name": "Extra meat sauce", "price": 25}
+        ]
+      }
+    },
+    {
+      "name": "Afghan Green Tea",
+      "description": "Traditional green tea with cardamom",
+      "price": 40,
+      "category": "Drinks",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "Cup", "price_modifier": 0},
+          {"name": "Pot", "price_modifier": 30}
+        ],
+        "sweetness": ["No sugar", "Little sugar", "Sweet"]
+      }
+    },
+    {
+      "name": "Doogh",
+      "description": "Traditional yogurt drink with mint and cucumber",
+      "price": 50,
+      "category": "Drinks",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "Regular", "price_modifier": 0},
+          {"name": "Large", "price_modifier": 20}
+        ]
+      }
+    },
+    {
+      "name": "Afghan Black Tea",
+      "description": "Strong black tea served with sugar and milk",
+      "price": 35,
+      "category": "Drinks",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "Cup", "price_modifier": 0},
+          {"name": "Pot", "price_modifier": 25}
+        ]
+      }
+    },
+    {
+      "name": "Fresh Pomegranate Juice",
+      "description": "Freshly squeezed pomegranate juice",
+      "price": 70,
+      "category": "Drinks",
+      "image": "",
+      "options": null
+    },
+    {
+      "name": "Firni",
+      "description": "Traditional milk pudding with cardamom and pistachios",
+      "price": 60,
+      "category": "Desserts",
+      "image": "",
+      "options": {
+        "add_ons": [
+          {"name": "Extra pistachios", "price": 20},
+          {"name": "Rose water", "price": 10}
+        ]
+      }
+    },
+    {
+      "name": "Sheer Yakh",
+      "description": "Afghan ice cream with cardamom, rose water, and pistachios",
+      "price": 65,
+      "category": "Desserts",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "1 scoop", "price_modifier": 0},
+          {"name": "2 scoops", "price_modifier": 35}
+        ]
+      }
+    },
+    {
+      "name": "Gosh-e Fil",
+      "description": "Elephant ear pastry - fried dough dusted with sugar and cardamom",
+      "price": 50,
+      "category": "Desserts",
+      "image": "",
+      "options": null
+    }
+  ]
+}

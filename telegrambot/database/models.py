@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text, BigInteger, func
+from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text, BigInteger, func, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -32,10 +32,11 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     description: Mapped[str] = mapped_column(Text)
     price: Mapped[float] = mapped_column(Numeric(5, 2), nullable=False)
-    image: Mapped[str] = mapped_column(String(150))
+    image: Mapped[str] = mapped_column(String(150), nullable=True)
     category_id: Mapped[int] = mapped_column(
         ForeignKey("category.id", ondelete="CASCADE"), nullable=False
     )
+    options: Mapped[dict | None] = mapped_column(JSON, nullable=True, default=None)
 
     category: Mapped["Category"] = relationship(backref="product")
 
@@ -48,6 +49,7 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(150), nullable=True)
     last_name: Mapped[str] = mapped_column(String(150), nullable=True)
     phone: Mapped[str] = mapped_column(String(13), nullable=True)
+    lang: Mapped[str] = mapped_column(String(5), default="en", server_default="en")
 
 
 class Cart(Base):

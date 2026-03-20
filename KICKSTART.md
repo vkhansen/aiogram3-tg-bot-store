@@ -179,10 +179,121 @@ Product images are stored as Telegram `file_id` strings — no external file sto
 ## 9. Important Notes
 
 - **Database resets on every restart** — `drop_db()` is called in `on_startup`. Remove this call in `main.py` for production use.
-- **Primary language is Russian** — UI strings are mostly in Russian. English localization exists but is minimal.
+- **7 languages supported** — English, Thai, Russian, Ukrainian, Arabic, Pashto, Farsi. Users pick on first `/start`.
 - **No real payment processing** — payment/delivery pages are informational stubs.
 - **No Docker setup** — run directly with Python.
 - **SQL echo is ON** — all queries are logged to console (`echo=True` in `engine.py`). Disable for production.
+
+---
+
+## 10. Menu System Architecture
+
+The menu is a **level-based state machine**. Every screen is an inline keyboard attached to a photo message. Navigation works by editing the same message in-place via `edit_media`.
+
+### Levels
+
+```
+Level 0 — Main Menu      (welcome banner + 6 buttons: Menu, Cart, About, Payment, Delivery, Language)
+Level 1 — Catalog         (category list from DB)
+Level 2 — Products        (paginated product cards, one per page)
+Level 3 — Cart            (paginated cart items with +1/-1/remove)
+```
+
+### How navigation works
+
+1. User sends `/start` → `user_private.py` calls `get_menu_content(level=0, menu_name="main")`
+2. Each button encodes a `MenuCallBack(level, menu_name, category, page, product_id)`
+3. On button press → `user_menu()` handler extracts the callback data
+4. Calls `get_menu_content()` which dispatches by level:
+   - `level 0` → `main_menu()` — banner image + main buttons
+   - `level 1` → `catalog()` — category buttons from DB
+   - `level 2` → `products()` — product card with pagination
+   - `level 3` → `carts()` — cart with quantity controls
+5. Returns `(InputMediaPhoto, InlineKeyboard)` → `edit_media()` updates the message
+
+### Where to configure menu content
+
+| What | File | Notes |
+|------|------|-------|
+| **Categories** (Food, Drinks) | `common/texts_for_db.py` → `categories` list | Seeded into DB on startup. Add/remove entries here |
+| **Banner text** (welcome, about, etc.) | `lexicon/strings.py` → keys like `welcome`, `about_text`, `payment_text` | Localized in all 7 languages |
+| **Banner images** | Upload via admin panel in Telegram (`Add/Edit banner`) | Stored as Telegram file_ids in `banner` table |
+| **Button labels** | `lexicon/strings.py` → keys like `btn_menu`, `btn_cart`, etc. | Localized in all 7 languages |
+| **Products** | Added via admin panel in Telegram (`Add product`) | Name, description, price, image, category |
+| **Category names (localized)** | `lexicon/strings.py` → `cat_food`, `cat_drinks` | Must match lowercase category name: `cat_{name}` |
+
+### Menu import from file
+
+Products can be bulk-imported from `telegrambot/data/menu.json` (or `menu.csv`). The import runs automatically on startup **only if the products table is empty** — it won't duplicate items on restart.
+
+**JSON format** (recommended — supports the `options` field):
+
+```json
+{
+  "categories": ["Food", "Drinks", "Desserts"],
+  "products": [
+    {
+      "name": "Kabuli Pulao",
+      "description": "Traditional Afghan rice with lamb",
+      "price": 180,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "Regular", "price_modifier": 0},
+          {"name": "Large", "price_modifier": 40}
+        ],
+        "add_ons": [
+          {"name": "Extra lamb", "price": 60}
+        ],
+        "spice_level": ["Mild", "Medium", "Spicy"]
+      }
+    }
+  ]
+}
+```
+
+**CSV format** (simpler, no options support):
+
+```csv
+name,description,price,category,image
+Kabuli Pulao,Traditional Afghan rice,180,Food,
+Afghan Tea,Green tea with cardamom,40,Drinks,
+```
+
+**The `options` JSON field** is stored per-product for future use. Designed for:
+- `sizes` — size variants with price modifiers
+- `add_ons` — extra toppings/sides with prices
+- `spice_level` — spice choices
+- `filling`, `protein`, `sweetness` — any product-specific choices
+- Any other key you need — the field is freeform JSON
+
+**The `image` field** can be left empty (`""`) — products without images will still work. Upload images later via the admin panel.
+
+### Adding a new category
+
+1. Add the English name to `common/texts_for_db.py` → `categories` list (e.g. `"Desserts"`)
+2. Add localized name to `lexicon/strings.py`:
+   ```python
+   "cat_desserts": {"en": "Desserts", "th": "ของหวาน", "ru": "Десерты", ...},
+   ```
+3. Restart the bot (DB reseeds on startup)
+
+### Adding a new language
+
+1. Add language code to `LANGS` in `lexicon/strings.py`
+2. Add label to `LANG_LABELS`
+3. Add flag emoji to `LANG_FLAGS` in `keyboards/inline.py`
+4. Add translations for every key in the `S` dict
+5. No other code changes needed
+
+### Localization system
+
+- All strings live in `lexicon/strings.py` as a single dict `S`
+- `lexicon/i18n.py` provides `t(key, lang, **kwargs)` — looks up the string, supports `{var}` placeholders, falls back to English
+- User's language preference stored in `user.lang` column in DB
+- Language resolved per-request via `orm_get_user_lang()`
+- Users pick language on first `/start`, can change via `🌐 Language` button
 
 ---
 

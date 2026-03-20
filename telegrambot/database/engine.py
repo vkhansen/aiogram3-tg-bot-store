@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from database.models import Base
 from database.orm_query import orm_add_banner_description, orm_create_categories
+from database.menu_import import import_menu
 
 from common.texts_for_db import categories, description_for_info_pages
 
@@ -20,6 +21,7 @@ async def create_db():
     async with session_maker() as session:
         await orm_create_categories(session, categories)
         await orm_add_banner_description(session, description_for_info_pages)
+        await import_menu(session)
 
 
 async def drop_db():

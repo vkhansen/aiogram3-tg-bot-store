@@ -1,29 +1,10 @@
-from aiogram.utils.formatting import Bold, as_list, as_marked_section
-
-
-categories = ["Еда", "Напитки"]
+categories = ["Food", "Drinks", "Desserts"]
 
 description_for_info_pages = {
-    "main": "Добро пожаловать!",
-    "about": "Пиццерия Такая-то.\nРежим работы - круглосуточно.",
-    "payment": as_marked_section(
-        Bold("Варианты оплаты:"),
-        "Картой в боте",
-        "При получении карта/кеш",
-        "В заведении",
-        marker="✅ ",
-    ).as_html(),
-    "shipping": as_list(
-        as_marked_section(
-            Bold("Варианты доставки/заказа:"),
-            "Курьер",
-            "Самовынос (сейчас прибегу заберу)",
-            "Покушаю у Вас (сейчас прибегу)",
-            marker="✅ ",
-        ),
-        as_marked_section(Bold("Нельзя:"), "Почта", "Голуби", marker="❌ "),
-        sep="\n----------------------\n",
-    ).as_html(),
-    "catalog": "Категории:",
-    "cart": "В корзине ничего нет!",
+    "main": "Welcome!",
+    "about": "Afghan Restaurant Bang Chak\nOpen daily",
+    "payment": "<b>Payment options:</b>\n✅ Card payment in bot\n✅ Cash on delivery\n✅ Pay at restaurant",
+    "shipping": "<b>Delivery options:</b>\n✅ Courier delivery\n✅ Self-pickup\n✅ Dine in\n----------------------\n<b>Not available:</b>\n❌ Post",
+    "catalog": "Categories:",
+    "cart": "Your cart is empty!",
 }

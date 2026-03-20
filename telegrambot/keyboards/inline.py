@@ -2,6 +2,9 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from lexicon.i18n import t
+from lexicon.strings import LANGS, LANG_LABELS, S
+
 
 class MenuCallBack(CallbackData, prefix="menu"):
     level: int
@@ -11,16 +14,47 @@ class MenuCallBack(CallbackData, prefix="menu"):
     product_id: int | None = None
 
 
-def get_user_main_btns(*, level: int, sizes: tuple[int] = (2,)):
+class LangCallBack(CallbackData, prefix="lang"):
+    lang: str
+
+
+LANG_FLAGS = {
+    "en": "🇬🇧",
+    "th": "🇹🇭",
+    "ru": "🇷🇺",
+    "uk": "🇺🇦",
+    "ar": "🇸🇦",
+    "ps": "🇦🇫",
+    "fa": "🇮🇷",
+}
+
+
+def get_lang_btns(sizes: tuple[int] = (3,)):
+    keyboard = InlineKeyboardBuilder()
+    for lang_code in LANGS:
+        flag = LANG_FLAGS.get(lang_code, "🌐")
+        label = LANG_LABELS.get(lang_code, lang_code)
+        keyboard.add(
+            InlineKeyboardButton(
+                text=f"{flag} {label}",
+                callback_data=LangCallBack(lang=lang_code).pack(),
+            )
+        )
+    return keyboard.adjust(*sizes).as_markup()
+
+
+def get_user_main_btns(*, level: int, lang: str = "en", sizes: tuple[int] = (2,)):
     keyboard = InlineKeyboardBuilder()
     btns = {
-        "Товары 🍕": "catalog",
-        "Корзина 🛒": "cart",
-        "О нас ℹ️": "about",
-        "Оплата 💰": "payment",
-        "Доставка ⛵": "shipping",
+        "btn_menu": "catalog",
+        "btn_cart": "cart",
+        "btn_about": "about",
+        "btn_payment": "payment",
+        "btn_delivery": "shipping",
+        "btn_change_lang": "change_lang",
     }
-    for text, menu_name in btns.items():
+    for key, menu_name in btns.items():
+        text = t(key, lang)
         if menu_name == "catalog":
             keyboard.add(
                 InlineKeyboardButton(
@@ -37,6 +71,13 @@ def get_user_main_btns(*, level: int, sizes: tuple[int] = (2,)):
                     callback_data=MenuCallBack(level=3, menu_name=menu_name).pack(),
                 )
             )
+        elif menu_name == "change_lang":
+            keyboard.add(
+                InlineKeyboardButton(
+                    text=text,
+                    callback_data=MenuCallBack(level=level, menu_name=menu_name).pack(),
+                )
+            )
         else:
             keyboard.add(
                 InlineKeyboardButton(
@@ -48,26 +89,28 @@ def get_user_main_btns(*, level: int, sizes: tuple[int] = (2,)):
     return keyboard.adjust(*sizes).as_markup()
 
 
-def get_user_catalog_btns(*, level: int, categories: list, sizes: tuple[int] = (2,)):
+def get_user_catalog_btns(*, level: int, categories: list, lang: str = "en", sizes: tuple[int] = (2,)):
     keyboard = InlineKeyboardBuilder()
 
     keyboard.add(
         InlineKeyboardButton(
-            text="Назад",
+            text=t("btn_back", lang),
             callback_data=MenuCallBack(level=level - 1, menu_name="main").pack(),
         )
     )
     keyboard.add(
         InlineKeyboardButton(
-            text="Корзина 🛒",
+            text=t("btn_cart", lang),
             callback_data=MenuCallBack(level=3, menu_name="cart").pack(),
         )
     )
 
     for c in categories:
+        cat_key = f"cat_{c.name.lower()}"
+        cat_name = t(cat_key, lang) if cat_key in S else c.name
         keyboard.add(
             InlineKeyboardButton(
-                text=c.name,
+                text=cat_name,
                 callback_data=MenuCallBack(
                     level=level + 1, menu_name=c.name, category=c.id
                 ).pack(),
@@ -84,25 +127,26 @@ def get_products_btns(
     page: int,
     pagination_btns: dict,
     product_id: int,
+    lang: str = "en",
     sizes: tuple[int] = (2, 1)
 ):
     keyboard = InlineKeyboardBuilder()
 
     keyboard.add(
         InlineKeyboardButton(
-            text="Назад",
+            text=t("btn_back", lang),
             callback_data=MenuCallBack(level=level - 1, menu_name="catalog").pack(),
         )
     )
     keyboard.add(
         InlineKeyboardButton(
-            text="Корзина 🛒",
+            text=t("btn_cart", lang),
             callback_data=MenuCallBack(level=3, menu_name="cart").pack(),
         )
     )
     keyboard.add(
         InlineKeyboardButton(
-            text="Купить 💵",
+            text=t("btn_buy", lang),
             callback_data=MenuCallBack(
                 level=level, menu_name="add_to_cart", product_id=product_id
             ).pack(),
@@ -148,13 +192,14 @@ def get_user_cart(
     page: int | None,
     pagination_btns: dict | None,
     product_id: int | None,
+    lang: str = "en",
     sizes: tuple[int] = (3,)
 ):
     keyboard = InlineKeyboardBuilder()
     if page:
         keyboard.add(
             InlineKeyboardButton(
-                text="Удалить",
+                text=t("btn_remove", lang),
                 callback_data=MenuCallBack(
                     level=level, menu_name="delete", product_id=product_id, page=page
                 ).pack(),
@@ -204,11 +249,11 @@ def get_user_cart(
 
         row2 = [
             InlineKeyboardButton(
-                text="На главную 🏠",
+                text=t("btn_home", lang),
                 callback_data=MenuCallBack(level=0, menu_name="main").pack(),
             ),
             InlineKeyboardButton(
-                text="Заказать",
+                text=t("btn_order", lang),
                 callback_data=MenuCallBack(level=0, menu_name="order").pack(),
             ),
         ]
@@ -216,7 +261,7 @@ def get_user_cart(
     else:
         keyboard.add(
             InlineKeyboardButton(
-                text="На главную 🏠",
+                text=t("btn_home", lang),
                 callback_data=MenuCallBack(level=0, menu_name="main").pack(),
             )
         )

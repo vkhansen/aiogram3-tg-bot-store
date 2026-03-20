@@ -1,1 +1,1 @@
-restricted_words = {"плохое слово", "еще одно плохое слово", "нецензурная лексика"}
+restricted_words = {"badword", "spam", "scam"}

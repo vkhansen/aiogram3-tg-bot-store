@@ -35,6 +35,6 @@ def clean_text(text: str):
 async def cleaner(message: types.Message):
     if restricted_words.intersection(clean_text(message.text.lower()).split()):
         await message.answer(
-            f"{message.from_user.first_name}, соблюдайте порядок в чате!"
+            f"{message.from_user.first_name}, please keep the chat respectful! / กรุณารักษามารยาทในแชท!"
         )
         await message.delete()

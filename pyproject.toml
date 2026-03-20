@@ -1,0 +1,39 @@
+[project]
+name = "afghan-restaurant-bot"
+version = "1.0.0"
+requires-python = ">=3.10"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+src = ["telegrambot"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "B",     # flake8-bugbear
+    "UP",    # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults (aiogram uses this)
+    "B905",  # zip without strict (python 3.10 compat)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["database", "handlers", "keyboards", "filters", "middlewares", "lexicon", "common", "utils"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["telegrambot/tests"]
+asyncio_mode = "auto"
