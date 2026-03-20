@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from database.models import Base, Banner, Category, Product, User, Cart
+from database.models import Banner, Cart, Category, Product, User
 
 
 class TestModelsExist:

@@ -16,7 +16,7 @@ class TestMenuJsonFormat:
     @pytest.fixture
     def menu_data(self):
         menu_path = Path(__file__).parent.parent / "data" / "menu.json"
-        with open(menu_path, "r", encoding="utf-8") as f:
+        with open(menu_path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_has_categories(self, menu_data):
@@ -81,7 +81,7 @@ class TestMenuCsvFormat:
             f.flush()
 
             import csv
-            with open(f.name, "r", encoding="utf-8") as cf:
+            with open(f.name, encoding="utf-8") as cf:
                 reader = csv.DictReader(cf)
                 rows = list(reader)
 

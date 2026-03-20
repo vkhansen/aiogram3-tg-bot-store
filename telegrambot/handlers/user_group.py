@@ -1,11 +1,10 @@
 from string import punctuation
 
-from aiogram import F, Bot, types, Router
+from aiogram import Bot, Router, types
 from aiogram.filters import Command
 
-from filters.chat_types import ChatTypeFilter
 from common.restricted_words import restricted_words
-
+from filters.chat_types import ChatTypeFilter
 
 user_group_router = Router()
 user_group_router.message.filter(ChatTypeFilter(["group", "supergroup"]))

@@ -1,11 +1,11 @@
 import os
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from common.texts_for_db import categories, description_for_info_pages
+from database.menu_import import import_menu
 from database.models import Base
 from database.orm_query import orm_add_banner_description, orm_create_categories
-from database.menu_import import import_menu
-
-from common.texts_for_db import categories, description_for_info_pages
 
 engine = create_async_engine(os.getenv("DB_URL"), echo=True)
 

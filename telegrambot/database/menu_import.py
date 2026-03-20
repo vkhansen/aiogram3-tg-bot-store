@@ -10,16 +10,14 @@ Usage:
     Only imports if the products table is empty (won't duplicate on restart).
 """
 
-import json
 import csv
-import os
+import json
 from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import Category, Product
-
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -57,7 +55,7 @@ async def import_from_json(session: AsyncSession, file_path: str | Path) -> int:
       ]
     }
     """
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
     # Create categories first
@@ -90,7 +88,7 @@ async def import_from_csv(session: AsyncSession, file_path: str | Path) -> int:
     Expected CSV columns: name, description, price, category, image
     (options not supported in CSV — use JSON for that)
     """
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         count = 0
         for row in reader:

@@ -1,4 +1,4 @@
-from lexicon.strings import S, DEFAULT_LANG
+from lexicon.strings import DEFAULT_LANG, S
 
 
 def t(key: str, lang: str = DEFAULT_LANG, **kwargs) -> str:

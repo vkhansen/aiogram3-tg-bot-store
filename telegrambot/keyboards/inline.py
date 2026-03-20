@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from lexicon.i18n import t
-from lexicon.strings import LANGS, LANG_LABELS, S
+from lexicon.strings import LANG_LABELS, LANGS, S
 
 
 class MenuCallBack(CallbackData, prefix="menu"):

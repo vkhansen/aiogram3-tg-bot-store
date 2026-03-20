@@ -1,7 +1,7 @@
-from aiogram import F, types, Router
+from aiogram import Router, types
 from aiogram.filters import CommandStart
-
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from database.orm_query import (
     orm_add_to_cart,
     orm_add_user,
@@ -9,12 +9,10 @@ from database.orm_query import (
     orm_get_user_lang,
     orm_set_user_lang,
 )
-
 from filters.chat_types import ChatTypeFilter
 from handlers.menu_processing import get_menu_content
-from keyboards.inline import MenuCallBack, LangCallBack, get_callback_btns, get_lang_btns
+from keyboards.inline import LangCallBack, MenuCallBack, get_lang_btns
 from lexicon.i18n import t
-
 
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(["private"]))

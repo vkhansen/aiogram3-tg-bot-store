@@ -2,27 +2,23 @@ from aiogram import F, Router, types
 from aiogram.filters import Command, StateFilter, or_f
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query import (
-    orm_change_banner_image,
-    orm_get_categories,
     orm_add_product,
+    orm_change_banner_image,
     orm_delete_product,
+    orm_get_categories,
     orm_get_info_pages,
     orm_get_product,
     orm_get_products,
     orm_get_user_lang,
     orm_update_product,
 )
-
 from filters.chat_types import ChatTypeFilter, IsAdmin
-
 from keyboards.inline import get_callback_btns
 from keyboards.reply import get_keyboard
 from lexicon.i18n import t
-
 
 admin_router = Router()
 admin_router.message.filter(ChatTypeFilter(["private"]), IsAdmin())
@@ -44,7 +40,7 @@ async def admin_features(message: types.Message, session: AsyncSession):
     await message.answer(t("admin_what", lang), reply_markup=get_admin_kb(lang))
 
 
-@admin_router.message(F.text.in_({t("products", l) for l in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
+@admin_router.message(F.text.in_({t("products", l) for lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
 async def admin_products(message: types.Message, session: AsyncSession):
     lang = await orm_get_user_lang(session, message.from_user.id)
     categories = await orm_get_categories(session)
@@ -89,7 +85,7 @@ class AddBanner(StatesGroup):
     image = State()
 
 
-@admin_router.message(StateFilter(None), F.text.in_({t("add_edit_banner", l) for l in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
+@admin_router.message(StateFilter(None), F.text.in_({t("add_edit_banner", l) for lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
 async def add_image2(message: types.Message, state: FSMContext, session: AsyncSession):
     lang = await orm_get_user_lang(session, message.from_user.id)
     pages_names = [page.name for page in await orm_get_info_pages(session)]
@@ -156,7 +152,7 @@ async def change_product_callback(
     await state.update_data(lang=lang)
 
 
-@admin_router.message(StateFilter(None), F.text.in_({t("add_product", l) for l in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
+@admin_router.message(StateFilter(None), F.text.in_({t("add_product", l) for lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
 async def add_product(message: types.Message, state: FSMContext, session: AsyncSession):
     lang = await orm_get_user_lang(session, message.from_user.id)
     await message.answer(
@@ -335,7 +331,7 @@ async def add_image(message: types.Message, state: FSMContext, session: AsyncSes
 
 
 @admin_router.message(AddProduct.image)
-async def add_image2(message: types.Message, state: FSMContext):
+async def add_product_image_invalid(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang = data.get("lang", "en")
     await message.answer(t("send_photo", lang))

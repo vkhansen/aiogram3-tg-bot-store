@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lexicon.i18n import t
-from lexicon.strings import S, LANGS, DEFAULT_LANG, LANG_LABELS
+from lexicon.strings import DEFAULT_LANG, LANG_LABELS, LANGS, S
 
 
 class TestTranslationHelper:

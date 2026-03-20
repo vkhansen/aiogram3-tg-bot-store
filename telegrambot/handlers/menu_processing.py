@@ -1,12 +1,7 @@
-from aiogram.types import InputMediaPhoto, FSInputFile
-from sqlalchemy.ext.asyncio import AsyncSession
-
 import os
 
-from lexicon.i18n import t
-from lexicon.strings import S
-
-PLACEHOLDER_IMAGE = os.path.join(os.path.dirname(__file__), "..", "assets", "placeholder.png")
+from aiogram.types import FSInputFile, InputMediaPhoto
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query import (
     orm_add_to_cart,
@@ -23,8 +18,11 @@ from keyboards.inline import (
     get_user_catalog_btns,
     get_user_main_btns,
 )
-
+from lexicon.i18n import t
+from lexicon.strings import S
 from utils.paginator import Paginator
+
+PLACEHOLDER_IMAGE = os.path.join(os.path.dirname(__file__), "..", "assets", "placeholder.png")
 
 
 def _banner_text(banner_name: str, lang: str) -> str:
