@@ -40,7 +40,7 @@ async def admin_features(message: types.Message, session: AsyncSession):
     await message.answer(t("admin_what", lang), reply_markup=get_admin_kb(lang))
 
 
-@admin_router.message(F.text.in_({t("products", l) for lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
+@admin_router.message(F.text.in_({t("products", _lang) for _lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
 async def admin_products(message: types.Message, session: AsyncSession):
     lang = await orm_get_user_lang(session, message.from_user.id)
     categories = await orm_get_categories(session)
@@ -85,7 +85,7 @@ class AddBanner(StatesGroup):
     image = State()
 
 
-@admin_router.message(StateFilter(None), F.text.in_({t("add_edit_banner", l) for lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
+@admin_router.message(StateFilter(None), F.text.in_({t("add_edit_banner", _lang) for _lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
 async def add_image2(message: types.Message, state: FSMContext, session: AsyncSession):
     lang = await orm_get_user_lang(session, message.from_user.id)
     pages_names = [page.name for page in await orm_get_info_pages(session)]
@@ -152,7 +152,7 @@ async def change_product_callback(
     await state.update_data(lang=lang)
 
 
-@admin_router.message(StateFilter(None), F.text.in_({t("add_product", l) for lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
+@admin_router.message(StateFilter(None), F.text.in_({t("add_product", _lang) for _lang in ["en", "th", "ru", "uk", "ar", "ps", "fa"]}))
 async def add_product(message: types.Message, state: FSMContext, session: AsyncSession):
     lang = await orm_get_user_lang(session, message.from_user.id)
     await message.answer(

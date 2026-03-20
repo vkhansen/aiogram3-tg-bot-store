@@ -8,12 +8,12 @@ from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 
-from common.bot_cmds_list import private
-from database.engine import create_db, drop_db, session_maker
-from handlers.admin_private import admin_router
-from handlers.user_group import user_group_router
-from handlers.user_private import user_private_router
-from middlewares.db import DataBaseSession
+from common.bot_cmds_list import private  # noqa: E402
+from database.engine import create_db, drop_db, session_maker  # noqa: E402
+from handlers.admin_private import admin_router  # noqa: E402
+from handlers.user_group import user_group_router  # noqa: E402
+from handlers.user_private import user_private_router  # noqa: E402
+from middlewares.db import DataBaseSession  # noqa: E402
 
 # ALLOWED_UPDATES = ['message', 'edited_message', 'callback_query']
 
