@@ -190,6 +190,35 @@
       "category": "Desserts",
       "image": "",
       "options": null
+    },
+    {
+      "name": "Test Burger",
+      "description": "Dummy burger for testing purposes",
+      "price": 99,
+      "category": "Food",
+      "image": "",
+      "options": {
+        "sizes": [
+          {"name": "Single", "price_modifier": 0},
+          {"name": "Double", "price_modifier": 50}
+        ]
+      }
+    },
+    {
+      "name": "Test Cola",
+      "description": "Dummy cola drink for testing",
+      "price": 25,
+      "category": "Drinks",
+      "image": "",
+      "options": null
+    },
+    {
+      "name": "Test Cake",
+      "description": "Dummy cake for testing",
+      "price": 75,
+      "category": "Desserts",
+      "image": "",
+      "options": null
     }
   ]
 }

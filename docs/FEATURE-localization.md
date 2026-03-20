@@ -72,6 +72,104 @@ For this project's size (~30-40 strings), a single dict file is simplest. No ext
 
 ---
 
+## Architecture Diagrams
+
+### Translation resolution flow
+
+```mermaid
+flowchart TD
+    A[Handler needs text] --> B["Call t(key, lang)"]
+    B --> C{Key exists in S dict?}
+    C -- No --> D[Return key as-is]
+    C -- Yes --> E{Translation for lang exists?}
+    E -- Yes --> F[Return translated string]
+    E -- No --> G{Fallback to DEFAULT_LANG?}
+    G -- Yes --> H[Return English fallback]
+    G -- No --> D
+    F --> I{Has format kwargs?}
+    H --> I
+    I -- Yes --> J["text.format(**kwargs)"]
+    I -- No --> K[Return text]
+    J --> K
+```
+
+### Language middleware pipeline
+
+```mermaid
+sequenceDiagram
+    participant TG as Telegram
+    participant MW as LanguageMiddleware
+    participant DB as Database
+    participant H as Handler
+
+    TG->>MW: Incoming message/callback
+    MW->>MW: Extract event_from_user
+    MW->>DB: get_user_lang(user_id)
+    DB-->>MW: user.lang or None
+
+    alt User has lang preference
+        MW->>H: data["lang"] = user.lang
+    else No user record
+        MW->>H: data["lang"] = DEFAULT_LANG
+    end
+
+    H->>H: t("welcome", lang) -> localized string
+    H->>TG: Send localized response
+```
+
+### Language selection flow
+
+```mermaid
+flowchart TD
+    A[User sends /start] --> B{User exists in DB?}
+    B -- No --> C[Create user record]
+    B -- Yes --> D{User has lang set?}
+    C --> E[Show language picker]
+    D -- No --> E
+    D -- Yes --> F[Show main menu in user lang]
+
+    E --> G["Choose your language:
+    English | Thai | Russian | ..."]
+    G --> H[User taps a language]
+    H --> I[orm_set_user_lang user_id lang]
+    I --> F
+```
+
+### How localized text flows through the system
+
+```mermaid
+flowchart LR
+    subgraph Data Sources
+        S["strings.py (S dict)"]
+        DB["DB: Banner.description"]
+        CAT["DB: Category.name"]
+    end
+
+    subgraph Middleware
+        LM[LanguageMiddleware]
+    end
+
+    subgraph Resolution
+        T["t(key, lang)"]
+    end
+
+    subgraph Output
+        MSG[Message text]
+        BTN[Button labels]
+        CAP[Photo captions]
+    end
+
+    LM --> |"injects lang"| T
+    S --> T
+    T --> MSG
+    T --> BTN
+    T --> CAP
+    DB --> |"fallback if no translation"| MSG
+    CAT --> |"cat_food/cat_drinks keys"| T
+```
+
+---
+
 ## Proposed Design
 
 ### 1. Language strings file
@@ -163,43 +261,13 @@ On `/start`, if user has no language set, show a language picker:
 
 Store the choice in DB. All subsequent messages use `t("key", user.lang)`.
 
-### 5. Middleware to inject language
+### 5. ~~Middleware to inject language~~ — DROPPED
 
-```python
-# middlewares/i18n.py
+Originally proposed a `LanguageMiddleware` to auto-inject `lang` into every handler. **Decided against it** — it would add an extra DB query on every request even when `lang` isn't needed. Handlers already call `orm_get_user_lang()` on demand, which is simpler and avoids unnecessary overhead.
 
-class LanguageMiddleware(BaseMiddleware):
-    async def __call__(self, handler, event, data):
-        user = data.get("event_from_user")
-        if user:
-            db_user = await get_user_lang(data["session"], user.id)
-            data["lang"] = db_user.lang if db_user else DEFAULT_LANG
-        else:
-            data["lang"] = DEFAULT_LANG
-        return await handler(event, data)
-```
+### 6. DB-seeded content (banners, categories) — SIMPLIFIED
 
-Then handlers receive `lang` as a parameter:
-
-```python
-@router.message(CommandStart())
-async def start(message: Message, lang: str, session: AsyncSession):
-    await message.answer(t("welcome", lang))
-```
-
-### 6. DB-seeded content (banners, categories)
-
-For banner descriptions and category names that live in the database, store them as JSON:
-
-```python
-# In texts_for_db.py
-categories = [
-    {"en": "Food", "th": "อาหาร"},
-    {"en": "Drinks", "th": "เครื่องดื่ม"},
-]
-```
-
-The `Category` model gets a `name_json` field (JSON string), and a helper resolves the right language at display time.
+Originally proposed storing categories/banners as multi-lang JSON dicts in the DB. **Simplified instead** — DB stores plain English names, and translations are resolved at display time via `S` dict keys (e.g. `cat_food`, `cat_drinks`). This avoids data duplication and keeps all translations in one place (`strings.py`).
 
 ---
 
@@ -209,14 +277,14 @@ The `Category` model gets a `name_json` field (JSON string), and a helper resolv
 |------|--------|
 | `lexicon/strings.py` | **NEW** — all translated strings |
 | `lexicon/i18n.py` | **NEW** — `t()` helper |
-| `middlewares/i18n.py` | **NEW** — inject `lang` into handlers |
+| ~~`middlewares/i18n.py`~~ | ~~Dropped — handlers fetch lang on demand instead~~ |
 | `database/models.py` | Add `lang` column to `User` |
 | `database/orm_query.py` | Add `get_user_lang()`, `set_user_lang()` |
 | `handlers/user_private.py` | Language picker on `/start`, use `t()` |
 | `handlers/admin_private.py` | Use `t()` for all messages |
 | `handlers/menu_processing.py` | Use `t()` for all captions/labels |
 | `keyboards/inline.py` | Accept `lang` param, use `t()` for button text |
-| `common/texts_for_db.py` | Categories/banners as multi-lang dicts |
+| `common/texts_for_db.py` | ~~Multi-lang dicts~~ — kept as English, resolved via `S` dict keys at display time |
 
 ---
 

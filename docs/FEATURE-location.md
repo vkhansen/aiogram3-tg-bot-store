@@ -76,6 +76,146 @@ class Order(Base):
 
 ---
 
+## Architecture Diagrams
+
+### Checkout address selection flow
+
+```mermaid
+flowchart TD
+    A[User taps Order in cart] --> B["Bot: How would you like to receive your order?"]
+    B --> C{Delivery method?}
+
+    C -- Pickup --> D[Show restaurant venue]
+    C -- Dine-in --> D
+    D --> E[Proceed to order confirmation]
+
+    C -- Delivery --> F{User has saved addresses?}
+    F -- Yes --> G[Show saved addresses + New address]
+    F -- No --> H[Go to New address flow]
+
+    G --> I{User selects?}
+    I -- Saved address --> J[Confirm delivery to address]
+    I -- New address --> H
+
+    H --> K["Bot: Share location or paste Google Maps link"]
+    K --> L{Input type?}
+
+    L -- GPS pin --> M[Extract lat/lng from Message.location]
+    L -- Google Maps URL --> N[validate_google_maps_url]
+    L -- Other text --> O["Bot: Invalid input, re-prompt"]
+    O --> K
+
+    N --> P{Valid?}
+    P -- No --> O
+    P -- Yes --> Q[Extract lat/lng]
+    M --> Q
+
+    Q --> R["Bot: Type a label (Home, Work...)"]
+    R --> S["Bot: Delivery instructions? (or skip)"]
+    S --> T[Save to DeliveryAddress table]
+    T --> J
+
+    J --> U["Confirm: Deliver to label? Confirm/Change"]
+    U -- Confirm --> E
+    U -- Change --> G
+```
+
+### Google Maps URL validation pipeline
+
+```mermaid
+flowchart TD
+    A[User sends text] --> B{Is it a URL?}
+    B -- No --> ERR1["LocationError: invalid_location_input"]
+
+    B -- Yes --> C{Domain is Google Maps?}
+    C -- No --> ERR2["LocationError: not_google_maps_url"]
+
+    C -- Yes --> D["HTTP HEAD request follow redirects 5s timeout"]
+    D --> E{Status 200?}
+    E -- No / timeout --> ERR3["LocationError: url_not_reachable"]
+
+    E -- Yes --> F[Get final URL after redirects]
+    F --> G[Extract coords from final URL]
+    G --> H{Coords found?}
+    H -- No --> I[Try extract from original URL]
+    I --> J{Coords found?}
+    J -- No --> ERR4["LocationError: coords_not_found_in_url"]
+
+    H -- Yes --> K{Valid lat/lng range?}
+    J -- Yes --> K
+    K -- No --> ERR5["LocationError: coords_out_of_range"]
+    K -- Yes --> OK["LocationResult lat lng"]
+```
+
+### Address management
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant B as Bot
+    participant DB as Database
+
+    U->>B: /addresses
+    B->>DB: orm_get_user_addresses(user_id)
+    DB-->>B: list of addresses
+
+    B->>U: Your saved addresses with Add/Remove/Set Default buttons
+
+    alt Add new address
+        U->>B: taps Add
+        B->>U: Share location or paste Google Maps link
+        Note over U,B: Same flow as checkout new address
+    else Remove address
+        U->>B: taps Remove
+        B->>U: Select address to remove
+        U->>B: selects address
+        B->>DB: orm_delete_delivery_address(id)
+        B->>U: Address deleted
+    else Set default
+        U->>B: taps Set Default
+        B->>U: Select default address
+        U->>B: selects address
+        B->>DB: orm_set_default_address(user_id, id)
+        B->>U: Default address updated
+    end
+```
+
+### Data model relationships
+
+```mermaid
+erDiagram
+    User ||--o{ DeliveryAddress : "has many"
+    User ||--o{ Cart : "has many"
+    RestaurantLocation {
+        int id PK
+        string name
+        string address_text
+        float latitude
+        float longitude
+        bool is_active
+    }
+    DeliveryAddress {
+        int id PK
+        int user_id FK
+        string label
+        float latitude
+        float longitude
+        string address_text
+        string instructions
+        bool is_default
+    }
+    User {
+        int id PK
+        bigint user_id UK
+        string first_name
+        string last_name
+        string phone
+        string lang
+    }
+```
+
+---
+
 ## User Flows
 
 ### Flow 1: Viewing the restaurant location (pickup info)

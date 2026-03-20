@@ -81,8 +81,9 @@ async def products(session, level, category, page, lang="en"):
     paginator = Paginator(products, page=page)
     product = paginator.get_page()[0]
 
+    product_media = product.image if product.image else FSInputFile(PLACEHOLDER_IMAGE)
     image = InputMediaPhoto(
-        media=product.image,
+        media=product_media,
         caption=f"<strong>{product.name}</strong>\n{product.description}\n"
                 f"{t('price', lang)}: {round(product.price, 2)}฿\n"
                 f"<strong>{t('item_of', lang, cur=paginator.page, total=paginator.pages)}</strong>",
@@ -140,8 +141,9 @@ async def carts(session, level, menu_name, page, user_id, product_id, lang="en")
         total_price = round(
             sum(cart.quantity * cart.product.price for cart in carts), 2
         )
+        cart_product_media = cart.product.image if cart.product.image else FSInputFile(PLACEHOLDER_IMAGE)
         image = InputMediaPhoto(
-            media=cart.product.image,
+            media=cart_product_media,
             caption=f"<strong>{cart.product.name}</strong>\n{cart.product.price}฿ x {cart.quantity} = {cart_price}฿\n"
                     f"{t('cart_item_of', lang, cur=paginator.page, total=paginator.pages)}\n"
                     f"{t('total', lang)}: {total_price}฿",

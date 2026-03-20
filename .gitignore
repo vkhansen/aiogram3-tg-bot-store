@@ -8,6 +8,7 @@ __pycache__/
 
 bot_base.db
 banners
+logs/
 
 # Distribution / packaging
 .Python
